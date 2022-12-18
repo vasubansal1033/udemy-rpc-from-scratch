@@ -1,19 +1,19 @@
 CC = gcc
 CFLAGS = -std=c99 -Wall -Wextra
 
-TARGET = myprogram
+# Every .c except stream.c → its own binary (auto-discovered)
+SRCS = $(filter-out stream.c,$(wildcard *.c))
+APPS = $(SRCS:.c=)
 
-all: $(TARGET)
+.PHONY: all clean
 
-$(TARGET): main.o stream.o
-	$(CC) $(CFLAGS) -o $(TARGET) main.o stream.o
+all: $(APPS)
 
-main.o: main.c stream.h
-	$(CC) $(CFLAGS) -c main.c
+$(APPS): %: %.o stream.o
+	$(CC) $(CFLAGS) -o $@ $^
 
-stream.o: stream.c stream.h
-	$(CC) $(CFLAGS) -c stream.c
+%.o: %.c stream.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
-.PHONY: clean
 clean:
-	rm -f *.o $(TARGET)
+	rm -f *.o $(APPS)

@@ -42,7 +42,7 @@ void deserialize_data(char *dst, ser_buff_t *buff, int size) {
 }
 
 void serialize_buffer_skip_bytes(ser_buff_t *buff, int skip_size) {
-  if (buff->next + skip_size < buff->size && buff->next + skip_size > 0) {
+  if (buff->next + skip_size < buff->size && buff->next + skip_size >= 0) {
     buff->next += skip_size;
   }
 }

@@ -4,9 +4,9 @@
 #define SERIALIZE_BUFFER_DEFAULT_SIZE 100
 
 typedef struct serialized_buffer {
-  char *b;  // points to the start of the serialized_buffer
-  int size; // total capacity of the serialized_buffer
-  int next; // cursor offset: byte offset where next read/write happens
+  char *b;           // points to the start of the serialized_buffer
+  unsigned int size; // total capacity of the serialized_buffer
+  unsigned int next; // cursor offset: byte offset where next read/write happens
 } ser_buff_t;
 
 void init_serialized_buffer(ser_buff_t **b);
