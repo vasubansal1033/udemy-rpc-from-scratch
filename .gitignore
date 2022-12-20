@@ -1,2 +1,5 @@
+build/
 *.o
 myprogram
+primitive_ds_ser_deser
+struct_ds_ser_deser

@@ -1,19 +1,18 @@
-CC = gcc
-CFLAGS = -std=c99 -Wall -Wextra
+BUILD_DIR = build
 
-# Every .c except stream.c → its own binary (auto-discovered)
-SRCS = $(filter-out stream.c,$(wildcard *.c))
-APPS = $(SRCS:.c=)
+.PHONY: all configure clean run-primitive run-struct
 
-.PHONY: all clean
+all: configure
+	cmake --build $(BUILD_DIR)
 
-all: $(APPS)
-
-$(APPS): %: %.o stream.o
-	$(CC) $(CFLAGS) -o $@ $^
-
-%.o: %.c stream.h
-	$(CC) $(CFLAGS) -c $< -o $@
+configure:
+	cmake -S . -B $(BUILD_DIR)
 
 clean:
-	rm -f *.o $(APPS)
+	rm -rf $(BUILD_DIR)
+
+run-primitive: all
+	./$(BUILD_DIR)/primitive_ds_ser_deser
+
+run-struct: all
+	./$(BUILD_DIR)/struct_ds_ser_deser
