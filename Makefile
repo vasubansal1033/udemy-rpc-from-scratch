@@ -16,3 +16,6 @@ run-primitive: all
 
 run-struct: all
 	./$(BUILD_DIR)/struct_ds_ser_deser
+
+run-nested-struct: all
+	./$(BUILD_DIR)/nested_struct_ds_ser_deser
