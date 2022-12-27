@@ -21,3 +21,6 @@ target_link_libraries(struct_ds_ser_deser PRIVATE stream)
 
 add_executable(nested_struct_ds_ser_deser nested_struct_ds_ser_deser.c)
 target_link_libraries(nested_struct_ds_ser_deser PRIVATE stream)
+
+add_executable(nested_pointer_struct_ds_ser_deser nested_pointer_struct_ds_ser_deser.c)
+target_link_libraries(nested_pointer_struct_ds_ser_deser PRIVATE stream)

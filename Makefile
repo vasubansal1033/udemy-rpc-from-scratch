@@ -19,3 +19,6 @@ run-struct: all
 
 run-nested-struct: all
 	./$(BUILD_DIR)/nested_struct_ds_ser_deser
+
+run-nested-pointer-struct: all	
+	./$(BUILD_DIR)/nested_pointer_struct_ds_ser_deser

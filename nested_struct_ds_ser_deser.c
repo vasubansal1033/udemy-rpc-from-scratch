@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
   struct person_t *p = (struct person_t *)calloc(1, sizeof(struct person_t));
   strcpy(p->name, "Vasu");
   p->weight = 85;
-  p->age = 29;
+  p->age = 28;
 
   struct occupation_t *o =
       (struct occupation_t *)calloc(1, sizeof(struct occupation_t));
