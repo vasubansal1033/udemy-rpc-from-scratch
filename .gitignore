@@ -3,3 +3,7 @@ build/
 myprogram
 primitive_ds_ser_deser
 struct_ds_ser_deser
+nested_struct_ds_ser_deser
+nested_pointer_struct_ds_ser_deser
+networking/client
+networking/server
