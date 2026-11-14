@@ -1,4 +1,7 @@
+#include "../serdes/stream.h">
+#include "nested_pointer_struct_serdes.h"
 #include "network_common.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -9,11 +12,25 @@ int main(int argc, char *argv[]) {
 
   int sock = create_listening_socket(IP_ADDR, PORT);
 
-  char *buff = calloc(1, sizeof(char) * 30);
-  int recv_size = 30;
+  struct person_t *p = NULL;
 
-  int num_recv_bytes = recv_data(sock, buff, recv_size);
+  ser_buff_t *buff = NULL;
+  init_serialized_buffer(&buff);
 
-  printf("server received: %s\n", buff);
+  // recv into full ser buffer capacity (default 100), not just name's 30 bytes
+  int num_recv_bytes = recv_data(sock, buff->b, buff->size);
+  (void)num_recv_bytes;
+
+  // cursor must start at 0 so deserialize reads from beginning
+  buff->next = 0;
+  p = deserialize_person_t(buff);
+
+  printf("server received data\n");
+  printf("\t%s (should be Vasu)\n", p->name);
+  printf("\t%d (should be 28)\n", p->age);
+  printf("\t%d (should be 85)\n", p->weight);
+  printf("\t%s (should be AI platform)\n", p->occ->dept_name);
+  printf("\t%d (should be 99)\n", p->occ->employee_code);
+
   return EXIT_SUCCESS;
 }
