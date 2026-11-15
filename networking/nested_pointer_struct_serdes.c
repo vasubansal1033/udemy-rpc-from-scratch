@@ -70,3 +70,12 @@ struct person_t *deserialize_person_t(ser_buff_t *buff) {
 
   return p;
 }
+
+void free_person_t(struct person_t *p) {
+  if (!p) {
+    return;
+  }
+
+  free(p->occ);
+  free(p);
+}

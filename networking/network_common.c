@@ -60,7 +60,6 @@ int create_listening_socket(const char *ip_addr, const int port) {
   }
 
   struct sockaddr_in listen_addr;
-  socklen_t listen_addr_len = sizeof(listen_addr);
   if (fill_sockaddr(&listen_addr, ip_addr, port) < 0) {
     close(sock);
     return -1;
@@ -80,17 +79,7 @@ int create_listening_socket(const char *ip_addr, const int port) {
 
   printf("Server listening on port %d\n", port);
 
-  int client_fd =
-      accept(sock, (struct sockaddr *)&listen_addr, &listen_addr_len);
-  if (client_fd < 0) {
-    perror("Failed to accept connection");
-    close(sock);
-    return -1;
-  }
-
-  printf("Client connected succesfully\n");
-
-  return client_fd;
+  return sock;
 }
 
 int send_data(int sock, char *data, int data_len) {
