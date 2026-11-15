@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
   printf("Sending person_t datastructure (%d bytes)\n", buff_size);
   send_data(sock, buff->b, buff_size);
 
+  free_serialize_buffer(buff);
   close(sock);
 
   return EXIT_SUCCESS;

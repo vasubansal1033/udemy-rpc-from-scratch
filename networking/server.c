@@ -1,9 +1,10 @@
-#include "../serdes/stream.h">
+#include "../serdes/stream.h"
 #include "nested_pointer_struct_serdes.h"
 #include "network_common.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 int main(int argc, char *argv[]) {
 
@@ -19,7 +20,6 @@ int main(int argc, char *argv[]) {
 
   // recv into full ser buffer capacity (default 100), not just name's 30 bytes
   int num_recv_bytes = recv_data(sock, buff->b, buff->size);
-  (void)num_recv_bytes;
 
   // cursor must start at 0 so deserialize reads from beginning
   buff->next = 0;
@@ -31,6 +31,9 @@ int main(int argc, char *argv[]) {
   printf("\t%d (should be 85)\n", p->weight);
   printf("\t%s (should be AI platform)\n", p->occ->dept_name);
   printf("\t%d (should be 99)\n", p->occ->employee_code);
+
+  free_serialize_buffer(buff);
+  close(sock);
 
   return EXIT_SUCCESS;
 }
