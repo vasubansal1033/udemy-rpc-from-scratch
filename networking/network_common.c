@@ -59,6 +59,12 @@ int create_listening_socket(const char *ip_addr, const int port) {
     return -1;
   }
 
+  if (setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
+    perror("Failed to set SO_REUSEPORT");
+    close(sock);
+    return -1;
+  }
+
   struct sockaddr_in listen_addr;
   if (fill_sockaddr(&listen_addr, ip_addr, port) < 0) {
     close(sock);
