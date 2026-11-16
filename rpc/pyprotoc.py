@@ -1,5 +1,6 @@
 import re
 import sys
+from pathlib import Path
 
 import yaml
 from jinja2 import Environment, FileSystemLoader
@@ -124,22 +125,26 @@ source_template = env.get_template("service_types.c.j2")
 for i, service in enumerate(data["services"]):
     # print(data["services"][i])
     service_name = service["name"]
+
+    # generate service_types.h
+    context["service_name"] = service_name
+    header_code = header_template.render(context)
+    source_code = source_template.render(context)
+
+    header_filepath = Path(f"./codegen/{to_lower_snake(service_name)}.h")
+    header_filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(header_filepath, "w") as f:
+        f.write(header_code)
+
+    source_filepath = Path(f"./codegen/{to_lower_snake(service_name)}.c")
+    source_filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(source_filepath, "w") as f:
+        f.write(source_code)
+
     for i, rpc in enumerate(service["rpcs"]):
         rpc_id = rpc["id"]
         rpc_name = rpc["name"]
         rpc_request = rpc["request"]
         rpc_response = rpc["response"]
 
-        # generate service_types.h
-        context["service_name"] = service_name
-        # print(context)
-        header_code = header_template.render(context)
-        source_code = source_template.render(context)
-
-        header_filename = f"{to_lower_snake(service_name)}.h"
-        with open(header_filename, "w") as f:
-            f.write(header_code)
-
-        source_filename = f"{to_lower_snake(service_name)}.c"
-        with open(source_filename, "w") as f:
-            f.write(source_code)
+        print(rpc_id, rpc_name, rpc_request, rpc_response)
