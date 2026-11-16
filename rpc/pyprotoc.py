@@ -62,9 +62,9 @@ language_datastructure_dict = {
         # Floating-point numbers
         "float32": "float",
         "float64": "double",
-        # Boolean (<stdbool.h>) & String
+        # Boolean (<stdbool.h>)
         "bool": "bool",
-        "string": "char*",
+        "string": "char",
     },
 }
 
@@ -82,10 +82,22 @@ for i, type in enumerate(data["types"]):
     types[type["name"]] = {}
     types[type["name"]]["fields"] = type["fields"]
 
+    for field in type["fields"]:
+        if field["type"] == "string" and not field.get("maxLength"):
+            print(
+                f"Error: {type['name']}.{field['name']} is a string without maxLength"
+            )
+            sys.exit(1)
+
 # print(types)
 # print(types["MulRequest"])
 
-env = Environment(loader=FileSystemLoader("."), trim_blocks=True, lstrip_blocks=True)
+env = Environment(
+    loader=FileSystemLoader("."),
+    trim_blocks=True,
+    lstrip_blocks=True,
+    keep_trailing_newline=True,
+)
 env.filters["upper_snake"] = to_upper_snake
 env.filters["lower_snake"] = to_lower_snake
 
@@ -95,7 +107,8 @@ context = {
     "language_datastructure_dict": language_datastructure_dict[language_name],
 }
 
-template = env.get_template("service_types.h.j2")
+header_template = env.get_template("service_types.h.j2")
+source_template = env.get_template("service_types.c.j2")
 
 for i, service in enumerate(data["services"]):
     # print(data["services"][i])
@@ -109,8 +122,13 @@ for i, service in enumerate(data["services"]):
         # generate service_types.h
         context["service_name"] = service_name
         # print(context)
-        c_code = template.render(context)
+        header_code = header_template.render(context)
+        source_code = source_template.render(context)
 
         header_filename = f"{to_lower_snake(service_name)}.h"
         with open(header_filename, "w") as f:
-            f.write(c_code)
+            f.write(header_code)
+
+        source_filename = f"{to_lower_snake(service_name)}.c"
+        with open(source_filename, "w") as f:
+            f.write(source_code)

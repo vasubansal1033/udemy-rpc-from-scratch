@@ -1,0 +1,41 @@
+#include "{{ service_name | lower_snake }}.h"
+
+#include <stdlib.h>
+
+{% for type_name, type_info in types.items() %}
+{% set t = type_name | lower_snake %}
+void serialize_{{ t }}_t(struct {{ t }}_t *obj, ser_buff_t *buff) {
+  // sentinel detection code
+  if (!obj) {
+    unsigned int sentinel = 0xFFFFFFFF;
+    serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
+
+    return;
+  }
+
+  {% for field in type_info.fields %}
+  serialize_data(buff, (char *)&obj->{{ field.name }}, sizeof(obj->{{ field.name }}));
+  {% endfor %}
+}
+
+struct {{ t }}_t *deserialize_{{ t }}_t(ser_buff_t *buff) {
+  // sentinel detection code
+  unsigned int sentinel = 0;
+  deserialize_data((char *)&sentinel, buff, sizeof(unsigned int));
+
+  if (sentinel == 0xFFFFFFFF) {
+    return NULL;
+  }
+
+  serialize_buffer_skip_bytes(buff, -(int)sizeof(unsigned int));
+
+  struct {{ t }}_t *obj = calloc(1, sizeof(struct {{ t }}_t));
+
+  {% for field in type_info.fields %}
+  deserialize_data((char *)&obj->{{ field.name }}, buff, sizeof(obj->{{ field.name }}));
+  {% endfor %}
+
+  return obj;
+}
+
+{% endfor %}
