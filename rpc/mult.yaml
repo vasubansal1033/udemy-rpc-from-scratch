@@ -1,0 +1,21 @@
+package: calc
+
+types:
+  - name: MulRequest
+    fields:
+      - { id: 1, name: a, type: int32 }
+      - { id: 2, name: b, type: int32 }
+
+  - name: MulReply
+    fields:
+      - { id: 1, name: result, type: int32 }
+
+  - name: Person
+    fields:
+      - { id: 1, name: id, type: int32 }
+      - { id: 2, name: name, type: string, maxLength: 30 }
+
+services:
+  - name: Calculator
+    rpcs:
+      - { id: 1, name: Multiply, request: MulRequest, response: MulReply }
