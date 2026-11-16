@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <stream.h>
+#include "stream.h"
 
 {% for type_name, type_info in types.items() %}
 struct {{ type_name | lower_snake }}_t {

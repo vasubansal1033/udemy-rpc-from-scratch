@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <stream.h>
+#include "stream.h"
 
 struct mul_request_t {
     int32_t a;
