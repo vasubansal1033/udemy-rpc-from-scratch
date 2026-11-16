@@ -121,6 +121,8 @@ context = {
 
 header_template = env.get_template("service_types.h.j2")
 source_template = env.get_template("service_types.c.j2")
+client_stub_template = env.get_template("client_stub.h.j2")
+server_stub_template = env.get_template("server_stub.h.j2")
 
 for i, service in enumerate(data["services"]):
     # print(data["services"][i])
@@ -140,6 +142,21 @@ for i, service in enumerate(data["services"]):
     source_filepath.parent.mkdir(parents=True, exist_ok=True)
     with open(source_filepath, "w") as f:
         f.write(source_code)
+
+    context["rpcs"] = service["rpcs"]
+    client_stub_code = client_stub_template.render(context)
+    client_stub_filepath = Path(
+        f"./codegen/{to_lower_snake(service_name)}_client_stub.h"
+    )
+    with open(client_stub_filepath, "w") as f:
+        f.write(client_stub_code)
+
+    server_stub_code = server_stub_template.render(context)
+    server_stub_filepath = Path(
+        f"./codegen/{to_lower_snake(service_name)}_server_stub.h"
+    )
+    with open(server_stub_filepath, "w") as f:
+        f.write(server_stub_code)
 
     for i, rpc in enumerate(service["rpcs"]):
         rpc_id = rpc["id"]

@@ -1,0 +1,12 @@
+#ifndef {{ service_name | upper_snake }}_SERVER_STUB_H
+#define {{ service_name | upper_snake }}_SERVER_STUB_H
+
+#include "{{ service_name | lower_snake }}.h"
+
+{% for rpc in rpcs %}
+struct {{ rpc.response | lower_snake }}_t *{{ rpc.name | lower_snake }}_handler(struct {{ rpc.request | lower_snake }}_t *req);
+{% endfor %}
+
+int {{ service_name | lower_snake }}_dispatch(int sock);
+
+#endif // {{ service_name | upper_snake }}_SERVER_STUB_H

@@ -1,0 +1,10 @@
+#ifndef {{ service_name | upper_snake }}_CLIENT_STUB_H
+#define {{ service_name | upper_snake }}_CLIENT_STUB_H
+
+#include "{{ service_name | lower_snake }}.h"
+
+{% for rpc in rpcs %}
+struct {{ rpc.response | lower_snake }}_t *{{ rpc.name | lower_snake }}(int sock, struct {{ rpc.request | lower_snake }}_t *req);
+{% endfor %}
+
+#endif // {{ service_name | upper_snake }}_CLIENT_STUB_H

@@ -11,6 +11,7 @@
 #define RPC_VERSION        1
 #define RPC_STATUS_FAILURE 0
 #define RPC_STATUS_SUCCESS 1
+#define RPC_HEADER_SIZE    22
 
 struct rpc_header_t {
     char magic[RPC_MAGIC_LEN];
