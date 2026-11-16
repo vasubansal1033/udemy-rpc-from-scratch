@@ -1,4 +1,5 @@
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -105,7 +106,7 @@ for i, type in enumerate(data["types"]):
 # print(types["MulRequest"])
 
 env = Environment(
-    loader=FileSystemLoader("."),
+    loader=FileSystemLoader("./templates"),
     trim_blocks=True,
     lstrip_blocks=True,
     keep_trailing_newline=True,
@@ -165,3 +166,7 @@ for i, service in enumerate(data["services"]):
         rpc_response = rpc["response"]
 
         print(rpc_id, rpc_name, rpc_request, rpc_response)
+
+# generated code depends on the serialization buffer, ship it alongside
+for stream_file in ["stream.h", "stream.c"]:
+    shutil.copy(f"./templates/{stream_file}", f"./codegen/{stream_file}")
