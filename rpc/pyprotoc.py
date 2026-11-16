@@ -24,49 +24,52 @@ def to_upper_snake(text):
 
 language_name = sys.argv[1].lower()
 language_datastructure_dict = {
+    # "type": name in the target language, "size": bytes on the wire.
+    # string size is per character; total is size * maxLength.
+    # Assuming 64 bit architecture
     "go": {
         # Signed integers
-        "int": "int",
-        "int8": "int8",
-        "int16": "int16",
-        "int32": "int32",
-        "int64": "int64",
+        "int": {"type": "int", "size": 8},
+        "int8": {"type": "int8", "size": 1},
+        "int16": {"type": "int16", "size": 2},
+        "int32": {"type": "int32", "size": 4},
+        "int64": {"type": "int64", "size": 8},
         # Unsigned integers
-        "uint": "uint",
-        "uint8": "uint8",
-        "uint16": "uint16",
-        "uint32": "uint32",
-        "uint64": "uint64",
-        "byte": "byte",
-        "rune": "rune",
+        "uint": {"type": "uint", "size": 8},
+        "uint8": {"type": "uint8", "size": 1},
+        "uint16": {"type": "uint16", "size": 2},
+        "uint32": {"type": "uint32", "size": 4},
+        "uint64": {"type": "uint64", "size": 8},
+        "byte": {"type": "byte", "size": 1},
+        "rune": {"type": "rune", "size": 4},
         # Floating-point numbers
-        "float32": "float32",
-        "float64": "float64",
+        "float32": {"type": "float32", "size": 4},
+        "float64": {"type": "float64", "size": 8},
         # Boolean & String
-        "bool": "bool",
-        "string": "string",
+        "bool": {"type": "bool", "size": 1},
+        "string": {"type": "string", "size": 1},
     },
     "c": {
         # Signed integers (<stdint.h>)
-        "int": "int",
-        "int8": "int8_t",
-        "int16": "int16_t",
-        "int32": "int32_t",
-        "int64": "int64_t",
+        "int": {"type": "int", "size": 4},
+        "int8": {"type": "int8_t", "size": 1},
+        "int16": {"type": "int16_t", "size": 2},
+        "int32": {"type": "int32_t", "size": 4},
+        "int64": {"type": "int64_t", "size": 8},
         # Unsigned integers (<stdint.h>)
-        "uint": "unsigned int",
-        "uint8": "uint8_t",
-        "uint16": "uint16_t",
-        "uint32": "uint32_t",
-        "uint64": "uint64_t",
-        "byte": "uint8_t",
-        "rune": "int32_t",
+        "uint": {"type": "unsigned int", "size": 4},
+        "uint8": {"type": "uint8_t", "size": 1},
+        "uint16": {"type": "uint16_t", "size": 2},
+        "uint32": {"type": "uint32_t", "size": 4},
+        "uint64": {"type": "uint64_t", "size": 8},
+        "byte": {"type": "uint8_t", "size": 1},
+        "rune": {"type": "int32_t", "size": 4},
         # Floating-point numbers
-        "float32": "float",
-        "float64": "double",
+        "float32": {"type": "float", "size": 4},
+        "float64": {"type": "double", "size": 8},
         # Boolean (<stdbool.h>)
-        "bool": "bool",
-        "string": "char",
+        "bool": {"type": "bool", "size": 1},
+        "string": {"type": "char", "size": 1},
     },
 }
 
@@ -168,5 +171,5 @@ for i, service in enumerate(data["services"]):
         print(rpc_id, rpc_name, rpc_request, rpc_response)
 
 # generated code depends on the serialization buffer, ship it alongside
-for stream_file in ["stream.h", "stream.c"]:
+for stream_file in ["stream.h", "stream.c", "network_common.c", "network_common.h"]:
     shutil.copy(f"./templates/{stream_file}", f"./codegen/{stream_file}")

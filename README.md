@@ -38,11 +38,13 @@ Checked on macOS with AppleClang and CMake 4.x (November 2026). The code generat
 └── rpc/                     # YAML-driven code generator
     ├── mult.yaml            # schema: message types and services
     ├── pyprotoc.py          # reads the YAML, renders the templates
-    ├── service_types.h.j2   # template: structs, rpc header, declarations
-    ├── service_types.c.j2   # template: serialize / deserialize functions
-    ├── client_stub.h.j2     # template: client stub declarations
-    ├── server_stub.h.j2     # template: server handler declarations
-    └── codegen/             # generated output (plus a copy of stream.h / stream.c)
+    ├── templates/           # inputs the generator renders or copies
+    │   ├── service_types.h.j2   # structs, rpc header, declarations
+    │   ├── service_types.c.j2   # serialize / deserialize functions
+    │   ├── client_stub.h.j2     # client stub declarations
+    │   ├── server_stub.h.j2     # server handler declarations
+    │   └── stream.h / stream.c  # buffer library, copied into codegen/ as is
+    └── codegen/             # generated output
 ```
 
 Build outputs land under `build/`, so the source tree stays clean. The `rpc/` module is not part of the CMake build yet; see RPC code generator for how to run it.
@@ -188,20 +190,21 @@ Writing serialize and deserialize functions by hand for every struct is repetiti
 
 #### Run it
 
-The script reads `mult.yaml` and the templates from the current directory, so run it from inside `rpc/`:
+The script finds `mult.yaml` and `templates/` relative to the current directory, so run it from inside `rpc/`:
 
 ```bash
 cd rpc
 python3 pyprotoc.py c
 ```
 
-For the `Calculator` service it writes four files into `rpc/codegen/`:
+For the `Calculator` service it writes these files into `rpc/codegen/`:
 
 | File | Contents |
 | --- | --- |
 | `calculator.h` / `calculator.c` | The message header, one struct per YAML type, and their serialize/deserialize functions |
 | `calculator_client_stub.h` | One client function per RPC, for example `multiply()` |
 | `calculator_server_stub.h` | One handler per RPC for you to implement, for example `multiply_handler()` |
+| `stream.h` / `stream.c` | The buffer library the generated code uses, copied from `rpc/templates/` so `codegen/` compiles on its own |
 
 #### Describe your messages in YAML
 
@@ -221,7 +224,7 @@ services:
       - { id: 1, name: Multiply, request: MulRequest, response: MulReply }
 ```
 
-A YAML type `MulRequest` becomes `struct mul_request_t` with `serialize_mul_request_t()` and `deserialize_mul_request_t()`. Deserialize allocates the struct, so the caller frees it. A field type can be a primitive (`int32`, `float64`, `bool`, and so on), a `string` with a `maxLength`, or another type defined earlier in the same file, which gets embedded inside the parent struct. The generator exits with an error if a string has no `maxLength` or a type is unknown.
+A YAML type `MulRequest` becomes `struct mul_request_t` with `serialize_mul_request_t()` and `deserialize_mul_request_t()`. Deserialize allocates the struct, so the caller frees it. A third function, `serialized_size_mul_request_t()`, returns how many bytes the payload takes on the wire, which tells a receiver how much to read. It adds up the sizes listed in `language_datastructure_dict` in `pyprotoc.py`, using `size * maxLength` for strings. A field type can be a primitive (`int32`, `float64`, `bool`, and so on), a `string` with a `maxLength`, or another type defined earlier in the same file, which gets embedded inside the parent struct. The generator exits with an error if a string has no `maxLength` or a type is unknown.
 
 #### How a message looks on the wire
 

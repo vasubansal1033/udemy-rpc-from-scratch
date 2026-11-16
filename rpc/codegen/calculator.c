@@ -31,13 +31,13 @@ struct rpc_header_t *deserialize_rpc_header_t(ser_buff_t *buff) {
 
 // ---------- sentinel ----------
 void serialize_sentinel(ser_buff_t *buff, bool is_null) {
-  unsigned int sentinel = is_null ? SENTINEL_NULL : SENTINEL_PRESENT;
-  serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
+  uint32_t sentinel = is_null ? SENTINEL_NULL : SENTINEL_PRESENT;
+  serialize_data(buff, (char *)&sentinel, SENTINEL_SIZE);
 }
 
 bool deserialize_sentinel(ser_buff_t *buff) {
-  unsigned int sentinel = 0;
-  deserialize_data((char *)&sentinel, buff, sizeof(unsigned int));
+  uint32_t sentinel = 0;
+  deserialize_data((char *)&sentinel, buff, SENTINEL_SIZE);
 
   return sentinel == SENTINEL_NULL;
 }
@@ -66,6 +66,13 @@ struct mul_request_t *deserialize_mul_request_t(ser_buff_t *buff) {
   return obj;
 }
 
+uint32_t serialized_size_mul_request_t(void) {
+  return SENTINEL_SIZE
+       + 4 // a
+       + 4 // b
+       ;
+}
+
 void serialize_mul_reply_t(struct mul_reply_t *obj, ser_buff_t *buff) {
   serialize_sentinel(buff, obj == NULL);
   if (!obj) {
@@ -85,6 +92,12 @@ struct mul_reply_t *deserialize_mul_reply_t(ser_buff_t *buff) {
   deserialize_data((char *)&obj->result, buff, sizeof(obj->result));
 
   return obj;
+}
+
+uint32_t serialized_size_mul_reply_t(void) {
+  return SENTINEL_SIZE
+       + 4 // result
+       ;
 }
 
 void serialize_person_t(struct person_t *obj, ser_buff_t *buff) {
@@ -108,5 +121,12 @@ struct person_t *deserialize_person_t(ser_buff_t *buff) {
   deserialize_data((char *)&obj->name, buff, sizeof(obj->name));
 
   return obj;
+}
+
+uint32_t serialized_size_person_t(void) {
+  return SENTINEL_SIZE
+       + 4 // id
+       + 1 * 30 // name
+       ;
 }
 

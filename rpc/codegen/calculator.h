@@ -30,6 +30,7 @@ struct rpc_header_t *deserialize_rpc_header_t(ser_buff_t *buff);
 // mistaken for NULL: SENTINEL_PRESENT = object follows, SENTINEL_NULL = NULL.
 #define SENTINEL_PRESENT 0x00000000u
 #define SENTINEL_NULL    0xFFFFFFFFu
+#define SENTINEL_SIZE    4
 
 void serialize_sentinel(ser_buff_t *buff, bool is_null);
 // returns true if the next object is NULL
@@ -43,6 +44,8 @@ struct mul_request_t {
 
 void serialize_mul_request_t(struct mul_request_t *obj, ser_buff_t *buff);
 struct mul_request_t *deserialize_mul_request_t(ser_buff_t *buff);
+// bytes written by serialize_mul_request_t for a non-NULL object (sentinel + fields)
+uint32_t serialized_size_mul_request_t(void);
 
 struct mul_reply_t {
     int32_t result;
@@ -50,6 +53,8 @@ struct mul_reply_t {
 
 void serialize_mul_reply_t(struct mul_reply_t *obj, ser_buff_t *buff);
 struct mul_reply_t *deserialize_mul_reply_t(ser_buff_t *buff);
+// bytes written by serialize_mul_reply_t for a non-NULL object (sentinel + fields)
+uint32_t serialized_size_mul_reply_t(void);
 
 struct person_t {
     int32_t id;
@@ -58,5 +63,7 @@ struct person_t {
 
 void serialize_person_t(struct person_t *obj, ser_buff_t *buff);
 struct person_t *deserialize_person_t(ser_buff_t *buff);
+// bytes written by serialize_person_t for a non-NULL object (sentinel + fields)
+uint32_t serialized_size_person_t(void);
 
 #endif // CALCULATOR_H

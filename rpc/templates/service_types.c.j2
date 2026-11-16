@@ -31,13 +31,13 @@ struct rpc_header_t *deserialize_rpc_header_t(ser_buff_t *buff) {
 
 // ---------- sentinel ----------
 void serialize_sentinel(ser_buff_t *buff, bool is_null) {
-  unsigned int sentinel = is_null ? SENTINEL_NULL : SENTINEL_PRESENT;
-  serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
+  uint32_t sentinel = is_null ? SENTINEL_NULL : SENTINEL_PRESENT;
+  serialize_data(buff, (char *)&sentinel, SENTINEL_SIZE);
 }
 
 bool deserialize_sentinel(ser_buff_t *buff) {
-  unsigned int sentinel = 0;
-  deserialize_data((char *)&sentinel, buff, sizeof(unsigned int));
+  uint32_t sentinel = 0;
+  deserialize_data((char *)&sentinel, buff, SENTINEL_SIZE);
 
   return sentinel == SENTINEL_NULL;
 }
@@ -81,6 +81,20 @@ struct {{ t }}_t *deserialize_{{ t }}_t(ser_buff_t *buff) {
   {% endfor %}
 
   return obj;
+}
+
+uint32_t serialized_size_{{ t }}_t(void) {
+  return SENTINEL_SIZE
+  {% for field in type_info.fields %}
+    {% if field.type == 'string' %}
+       + {{ language_datastructure_dict[field.type]['size'] }} * {{ field.maxLength }} // {{ field.name }}
+    {% elif field.type in types %}
+       + serialized_size_{{ field.type | lower_snake }}_t() // {{ field.name }}
+    {% else %}
+       + {{ language_datastructure_dict[field.type]['size'] }} // {{ field.name }}
+    {% endif %}
+  {% endfor %}
+       ;
 }
 
 {% endfor %}

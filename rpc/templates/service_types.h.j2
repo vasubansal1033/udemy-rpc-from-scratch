@@ -30,6 +30,7 @@ struct rpc_header_t *deserialize_rpc_header_t(ser_buff_t *buff);
 // mistaken for NULL: SENTINEL_PRESENT = object follows, SENTINEL_NULL = NULL.
 #define SENTINEL_PRESENT 0x00000000u
 #define SENTINEL_NULL    0xFFFFFFFFu
+#define SENTINEL_SIZE    4
 
 void serialize_sentinel(ser_buff_t *buff, bool is_null);
 // returns true if the next object is NULL
@@ -40,17 +41,19 @@ bool deserialize_sentinel(ser_buff_t *buff);
 struct {{ type_name | lower_snake }}_t {
   {% for field in type_info.fields %}
     {% if field.type == 'string' %}
-    {{ language_datastructure_dict[field.type] }} {{ field.name }}[{{ field.maxLength }}];
+    {{ language_datastructure_dict[field.type]['type'] }} {{ field.name }}[{{ field.maxLength }}];
     {% elif field.type in types %}
     struct {{ field.type | lower_snake }}_t {{ field.name }};
     {% else %}
-    {{ language_datastructure_dict.get(field.type, field.type) }} {{ field.name }};
+    {{ language_datastructure_dict[field.type]['type'] }} {{ field.name }};
     {% endif %}
   {% endfor %}
 };
 
 void serialize_{{ type_name | lower_snake }}_t(struct {{ type_name | lower_snake }}_t *obj, ser_buff_t *buff);
 struct {{ type_name | lower_snake }}_t *deserialize_{{ type_name | lower_snake }}_t(ser_buff_t *buff);
+// bytes written by serialize_{{ type_name | lower_snake }}_t for a non-NULL object (sentinel + fields)
+uint32_t serialized_size_{{ type_name | lower_snake }}_t(void);
 
 {% endfor %}
 #endif // {{ service_name | upper_snake }}_H
