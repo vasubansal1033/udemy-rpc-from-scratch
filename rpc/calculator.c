@@ -2,12 +2,16 @@
 
 #include <stdlib.h>
 
-void serialize_mul_request_t(struct mul_request_t *obj, ser_buff_t *buff) {
-  // sentinel detection code
-  if (!obj) {
-    unsigned int sentinel = 0xFFFFFFFF;
-    serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
+// Every object is prefixed with a marker so field data can never be
+// mistaken for NULL: SENTINEL_PRESENT = object follows, SENTINEL_NULL = NULL.
+#define SENTINEL_PRESENT 0x00000000u
+#define SENTINEL_NULL    0xFFFFFFFFu
 
+void serialize_mul_request_t(struct mul_request_t *obj, ser_buff_t *buff) {
+  unsigned int sentinel = obj ? SENTINEL_PRESENT : SENTINEL_NULL;
+  serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
+
+  if (!obj) {
     return;
   }
 
@@ -16,15 +20,12 @@ void serialize_mul_request_t(struct mul_request_t *obj, ser_buff_t *buff) {
 }
 
 struct mul_request_t *deserialize_mul_request_t(ser_buff_t *buff) {
-  // sentinel detection code
   unsigned int sentinel = 0;
   deserialize_data((char *)&sentinel, buff, sizeof(unsigned int));
 
-  if (sentinel == 0xFFFFFFFF) {
+  if (sentinel == SENTINEL_NULL) {
     return NULL;
   }
-
-  serialize_buffer_skip_bytes(buff, -(int)sizeof(unsigned int));
 
   struct mul_request_t *obj = calloc(1, sizeof(struct mul_request_t));
 
@@ -35,11 +36,10 @@ struct mul_request_t *deserialize_mul_request_t(ser_buff_t *buff) {
 }
 
 void serialize_mul_reply_t(struct mul_reply_t *obj, ser_buff_t *buff) {
-  // sentinel detection code
-  if (!obj) {
-    unsigned int sentinel = 0xFFFFFFFF;
-    serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
+  unsigned int sentinel = obj ? SENTINEL_PRESENT : SENTINEL_NULL;
+  serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
 
+  if (!obj) {
     return;
   }
 
@@ -47,15 +47,12 @@ void serialize_mul_reply_t(struct mul_reply_t *obj, ser_buff_t *buff) {
 }
 
 struct mul_reply_t *deserialize_mul_reply_t(ser_buff_t *buff) {
-  // sentinel detection code
   unsigned int sentinel = 0;
   deserialize_data((char *)&sentinel, buff, sizeof(unsigned int));
 
-  if (sentinel == 0xFFFFFFFF) {
+  if (sentinel == SENTINEL_NULL) {
     return NULL;
   }
-
-  serialize_buffer_skip_bytes(buff, -(int)sizeof(unsigned int));
 
   struct mul_reply_t *obj = calloc(1, sizeof(struct mul_reply_t));
 
@@ -65,11 +62,10 @@ struct mul_reply_t *deserialize_mul_reply_t(ser_buff_t *buff) {
 }
 
 void serialize_person_t(struct person_t *obj, ser_buff_t *buff) {
-  // sentinel detection code
-  if (!obj) {
-    unsigned int sentinel = 0xFFFFFFFF;
-    serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
+  unsigned int sentinel = obj ? SENTINEL_PRESENT : SENTINEL_NULL;
+  serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
 
+  if (!obj) {
     return;
   }
 
@@ -78,15 +74,12 @@ void serialize_person_t(struct person_t *obj, ser_buff_t *buff) {
 }
 
 struct person_t *deserialize_person_t(ser_buff_t *buff) {
-  // sentinel detection code
   unsigned int sentinel = 0;
   deserialize_data((char *)&sentinel, buff, sizeof(unsigned int));
 
-  if (sentinel == 0xFFFFFFFF) {
+  if (sentinel == SENTINEL_NULL) {
     return NULL;
   }
-
-  serialize_buffer_skip_bytes(buff, -(int)sizeof(unsigned int));
 
   struct person_t *obj = calloc(1, sizeof(struct person_t));
 

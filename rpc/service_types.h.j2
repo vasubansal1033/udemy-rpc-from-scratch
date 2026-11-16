@@ -10,6 +10,8 @@ struct {{ type_name | lower_snake }}_t {
   {% for field in type_info.fields %}
     {% if field.type == 'string' %}
     {{ language_datastructure_dict[field.type] }} {{ field.name }}[{{ field.maxLength }}];
+    {% elif field.type in types %}
+    struct {{ field.type | lower_snake }}_t {{ field.name }};
     {% else %}
     {{ language_datastructure_dict.get(field.type, field.type) }} {{ field.name }};
     {% endif %}

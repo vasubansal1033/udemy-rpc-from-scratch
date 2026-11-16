@@ -79,15 +79,26 @@ package_name = data["package"]
 
 types = {}
 for i, type in enumerate(data["types"]):
-    types[type["name"]] = {}
-    types[type["name"]]["fields"] = type["fields"]
-
     for field in type["fields"]:
         if field["type"] == "string" and not field.get("maxLength"):
             print(
                 f"Error: {type['name']}.{field['name']} is a string without maxLength"
             )
             sys.exit(1)
+
+        # nested types must be defined earlier in the YAML (also rules out self-nesting)
+        if (
+            field["type"] not in language_datastructure_dict[language_name]
+            and field["type"] not in types
+        ):
+            print(
+                f"Error: {type['name']}.{field['name']} has unknown type "
+                f"'{field['type']}' (nested types must be defined before use)"
+            )
+            sys.exit(1)
+
+    types[type["name"]] = {}
+    types[type["name"]]["fields"] = type["fields"]
 
 # print(types)
 # print(types["MulRequest"])
