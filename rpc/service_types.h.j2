@@ -5,6 +5,37 @@
 #include <stdbool.h>
 #include "stream.h"
 
+// ---------- rpc header ----------
+#define RPC_MAGIC          "V4$U8@N5@!"
+#define RPC_MAGIC_LEN      10
+#define RPC_VERSION        1
+#define RPC_STATUS_FAILURE 0
+#define RPC_STATUS_SUCCESS 1
+#define RPC_HEADER_SIZE    22
+
+struct rpc_header_t {
+    char magic[RPC_MAGIC_LEN];
+    uint16_t version;
+    uint32_t rpc_id;      // server dispatches on this
+    uint16_t status;      // RPC_STATUS_FAILURE / RPC_STATUS_SUCCESS
+    uint32_t payload_len; // bytes following the header
+};
+
+void serialize_rpc_header_t(struct rpc_header_t *obj, ser_buff_t *buff);
+// returns NULL if magic does not match
+struct rpc_header_t *deserialize_rpc_header_t(ser_buff_t *buff);
+
+// ---------- sentinel ----------
+// Every object is prefixed with a marker so field data can never be
+// mistaken for NULL: SENTINEL_PRESENT = object follows, SENTINEL_NULL = NULL.
+#define SENTINEL_PRESENT 0x00000000u
+#define SENTINEL_NULL    0xFFFFFFFFu
+
+void serialize_sentinel(ser_buff_t *buff, bool is_null);
+// returns true if the next object is NULL
+bool deserialize_sentinel(ser_buff_t *buff);
+
+// ---------- types ----------
 {% for type_name, type_info in types.items() %}
 struct {{ type_name | lower_snake }}_t {
   {% for field in type_info.fields %}

@@ -1,7 +1,7 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-#define SERIALIZE_BUFFER_DEFAULT_SIZE 100
+#define SERIALIZE_BUFFER_DEFAULT_SIZE 1000
 
 typedef struct serialized_buffer {
   char *b;           // points to the start of the serialized_buffer

@@ -1,16 +1,50 @@
 #include "calculator.h"
 
 #include <stdlib.h>
+#include <string.h>
 
-// Every object is prefixed with a marker so field data can never be
-// mistaken for NULL: SENTINEL_PRESENT = object follows, SENTINEL_NULL = NULL.
-#define SENTINEL_PRESENT 0x00000000u
-#define SENTINEL_NULL    0xFFFFFFFFu
+// ---------- rpc header ----------
+void serialize_rpc_header_t(struct rpc_header_t *obj, ser_buff_t *buff) {
+  serialize_data(buff, (char *)&obj->magic, sizeof(obj->magic));
+  serialize_data(buff, (char *)&obj->version, sizeof(obj->version));
+  serialize_data(buff, (char *)&obj->rpc_id, sizeof(obj->rpc_id));
+  serialize_data(buff, (char *)&obj->status, sizeof(obj->status));
+  serialize_data(buff, (char *)&obj->payload_len, sizeof(obj->payload_len));
+}
 
-void serialize_mul_request_t(struct mul_request_t *obj, ser_buff_t *buff) {
-  unsigned int sentinel = obj ? SENTINEL_PRESENT : SENTINEL_NULL;
+struct rpc_header_t *deserialize_rpc_header_t(ser_buff_t *buff) {
+  struct rpc_header_t *obj = calloc(1, sizeof(struct rpc_header_t));
+
+  deserialize_data((char *)&obj->magic, buff, sizeof(obj->magic));
+  if (memcmp(obj->magic, RPC_MAGIC, RPC_MAGIC_LEN) != 0) {
+    free(obj);
+    return NULL;
+  }
+
+  deserialize_data((char *)&obj->version, buff, sizeof(obj->version));
+  deserialize_data((char *)&obj->rpc_id, buff, sizeof(obj->rpc_id));
+  deserialize_data((char *)&obj->status, buff, sizeof(obj->status));
+  deserialize_data((char *)&obj->payload_len, buff, sizeof(obj->payload_len));
+
+  return obj;
+}
+
+// ---------- sentinel ----------
+void serialize_sentinel(ser_buff_t *buff, bool is_null) {
+  unsigned int sentinel = is_null ? SENTINEL_NULL : SENTINEL_PRESENT;
   serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
+}
 
+bool deserialize_sentinel(ser_buff_t *buff) {
+  unsigned int sentinel = 0;
+  deserialize_data((char *)&sentinel, buff, sizeof(unsigned int));
+
+  return sentinel == SENTINEL_NULL;
+}
+
+// ---------- types ----------
+void serialize_mul_request_t(struct mul_request_t *obj, ser_buff_t *buff) {
+  serialize_sentinel(buff, obj == NULL);
   if (!obj) {
     return;
   }
@@ -20,10 +54,7 @@ void serialize_mul_request_t(struct mul_request_t *obj, ser_buff_t *buff) {
 }
 
 struct mul_request_t *deserialize_mul_request_t(ser_buff_t *buff) {
-  unsigned int sentinel = 0;
-  deserialize_data((char *)&sentinel, buff, sizeof(unsigned int));
-
-  if (sentinel == SENTINEL_NULL) {
+  if (deserialize_sentinel(buff)) {
     return NULL;
   }
 
@@ -36,9 +67,7 @@ struct mul_request_t *deserialize_mul_request_t(ser_buff_t *buff) {
 }
 
 void serialize_mul_reply_t(struct mul_reply_t *obj, ser_buff_t *buff) {
-  unsigned int sentinel = obj ? SENTINEL_PRESENT : SENTINEL_NULL;
-  serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
-
+  serialize_sentinel(buff, obj == NULL);
   if (!obj) {
     return;
   }
@@ -47,10 +76,7 @@ void serialize_mul_reply_t(struct mul_reply_t *obj, ser_buff_t *buff) {
 }
 
 struct mul_reply_t *deserialize_mul_reply_t(ser_buff_t *buff) {
-  unsigned int sentinel = 0;
-  deserialize_data((char *)&sentinel, buff, sizeof(unsigned int));
-
-  if (sentinel == SENTINEL_NULL) {
+  if (deserialize_sentinel(buff)) {
     return NULL;
   }
 
@@ -62,9 +88,7 @@ struct mul_reply_t *deserialize_mul_reply_t(ser_buff_t *buff) {
 }
 
 void serialize_person_t(struct person_t *obj, ser_buff_t *buff) {
-  unsigned int sentinel = obj ? SENTINEL_PRESENT : SENTINEL_NULL;
-  serialize_data(buff, (char *)&sentinel, sizeof(unsigned int));
-
+  serialize_sentinel(buff, obj == NULL);
   if (!obj) {
     return;
   }
@@ -74,10 +98,7 @@ void serialize_person_t(struct person_t *obj, ser_buff_t *buff) {
 }
 
 struct person_t *deserialize_person_t(ser_buff_t *buff) {
-  unsigned int sentinel = 0;
-  deserialize_data((char *)&sentinel, buff, sizeof(unsigned int));
-
-  if (sentinel == SENTINEL_NULL) {
+  if (deserialize_sentinel(buff)) {
     return NULL;
   }
 
